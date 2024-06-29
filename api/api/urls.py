@@ -28,8 +28,10 @@ from dj_rest_auth.views import (
     PasswordResetView,
 )
 
+from tasks.views import TaskViewSet
+
 router = SimpleRouter()
-# router.register()
+router.register(prefix="tasks", viewset=TaskViewSet, basename="tasks")
 
 dj_rest_auth_urls = [
     # URLs that do not require a session or valid token
