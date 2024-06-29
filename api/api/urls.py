@@ -14,9 +14,49 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
 
+from rest_framework.routers import SimpleRouter
+from dj_rest_auth.views import (
+    LoginView,
+    LogoutView,
+    PasswordChangeView,
+    PasswordResetConfirmView,
+    PasswordResetView,
+)
+
+router = SimpleRouter()
+# router.register()
+
+dj_rest_auth_urls = [
+    # URLs that do not require a session or valid token
+    path(
+        "password/reset/",
+        PasswordResetView.as_view(),
+        name="rest_password_reset",
+    ),
+    path(
+        "password/reset/confirm/",
+        PasswordResetConfirmView.as_view(),
+        name="rest_password_reset_confirm",
+    ),
+    path("signup/", include("dj_rest_auth.registration.urls")),
+    path("login/", LoginView.as_view(), name="rest_login"),
+    # URLs that require a user to be logged in with a valid session / token.
+    path("logout/", LogoutView.as_view(), name="rest_logout"),
+    path(
+        "password/change/",
+        PasswordChangeView.as_view(),
+        name="rest_password_change",
+    ),
+    # path("user/", UserDetailView.as_view(), name="rest_user"),
+]
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
+    path("auth/", include(dj_rest_auth_urls)),
+    path("api/", include(router.urls)),
 ]

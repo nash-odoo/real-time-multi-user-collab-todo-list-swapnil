@@ -8,15 +8,15 @@ from core.models import BaseModel
 
 
 class User(BaseModel, AbstractUser):
-    email = models.CharField(max_length=100)
+    email = models.CharField(unique=True, max_length=100)
 
     profile_picture = models.ImageField(
-        upload_to=get_profile_picture_path,
-        blank=True,
+        upload_to=get_profile_picture_path, blank=True, null=True
     )
 
-    USERNAME_FIELD = "username"
+    USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
+    REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = "User"
