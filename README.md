@@ -43,3 +43,6 @@ npm run dev
 # Build for production
 npm run build
 ```
+
+
+# BACKEND README IS INSIDE api/README.md
