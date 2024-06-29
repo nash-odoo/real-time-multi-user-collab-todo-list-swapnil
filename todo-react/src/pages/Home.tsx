@@ -25,12 +25,20 @@ const Home = () => {
               <div className="font-extrabold text-6xl">69</div>
             </div>
             <div>
-            <div className="font-bold">Active users</div>
-            <div className="font-extrabold text-6xl">69</div>
+              <div className="font-bold">Active users</div>
+              <div className="font-extrabold text-6xl">69</div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+
+    {/* Footer */}
+
+    <div className="flex flex-wrap justify-between fixed bottom-0 rounded-lg bg-slate-50 drop-shadow-xl h-16 w-full p-4">
+      <div className="font-extrabold text-2xl text-[#F87777]">To-do list</div>
+      <div>@Odoo hackathon 2024</div>
+      <div>social links</div>
     </div>
 
   </div>
