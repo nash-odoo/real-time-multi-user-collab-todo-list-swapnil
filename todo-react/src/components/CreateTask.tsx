@@ -53,22 +53,6 @@ const CreateTask = (props: CreateTaskProps) => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log(data)
-    onCreate({
-      id: Math.random().toString(36).substring(7),
-      items: data.items.map((item) => ({
-        ...item,
-        isCompleted: item.isCompleted,
-        priority: "medium",
-        id: Math.random().toString(36).substring(7),
-        text: item.text,
-        assignees: item.assignees.map((assignee) => ({
-          id: assignee.id,
-          name: assignee.name,
-          photo: 'https://randomuser.me/api/portraits/thumb/women/88.jpg'
-        }),
-      })),
-      title: data.title,
-    })
   }
 
   console.log(form.getValues())

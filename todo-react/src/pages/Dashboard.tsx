@@ -1,6 +1,6 @@
 import CreateTask from "@/components/CreateTask"
 import Task from "@/components/Task"
-import { Task as ITask, Task } from "@/types"
+import { Task as ITask } from "@/types"
 import { ApiResponse } from "@/types/randomuser"
 import { useState } from "react"
 import { useAsyncEffect } from "rooks"
