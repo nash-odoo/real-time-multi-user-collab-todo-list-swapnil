@@ -52,7 +52,7 @@ const CreateTask = () => {
   console.log(form.getValues())
 
   return (
-    <div className="w-full flex flex-row flex-grow gap-3 px-5 py-8">
+    <div className="w-full flex flex-row flex-grow gap-3 py-8">
       <Form {...form}>
         <form
           className="flex flex-grow gap-x-4 items-start h-min w-full"

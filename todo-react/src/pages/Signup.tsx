@@ -13,8 +13,10 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import React from "react"
 import { useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { z } from "zod"
+import { useMutation } from "react-query"
+import { signup } from "@/lib/api"
 
 const Signup = () => {
   const formSchema = z
@@ -46,8 +48,22 @@ const Signup = () => {
     },
   })
 
+  const navigate = useNavigate()
+
+  const { data, status, mutate } = useMutation(signup, {
+    onSuccess: () => {
+      navigate("/dashboard")
+    },
+  })
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     console.log(data)
+    mutate({
+      email: data.email,
+      first_name: data.firstName,
+      last_name: data.lastName,
+      password1: data.password,
+      password2: data.passwordConfirmation,
+    })
   }
 
   return (
@@ -140,8 +156,8 @@ const Signup = () => {
             </Link>
           </small>
 
-          <Button variant="green" type="submit">
-            Continue
+          <Button variant="green" type="submit" disabled={status === "loading"}>
+            {status === "loading" ? "Loading..." : "Continue"}
           </Button>
         </form>
       </Form>
