@@ -64,7 +64,7 @@ class TaskItem(BaseModel):
         verbose_name_plural = "Task Items"
 
     def __str__(self) -> str:
-        return f"{self.task.name} - {self.text[:15]}"
+        return f"{self.text[:15]} - {self.task.name}"
 
 
 class TaskItemAssignee(BaseModel):

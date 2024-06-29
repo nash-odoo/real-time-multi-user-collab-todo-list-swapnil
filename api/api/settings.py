@@ -181,6 +181,7 @@ REST_FRAMEWORK = {
 
 REST_AUTH = {
     # "TOKEN_SERIALIZER": "core.token_serializer.TokenSerializer",
+    "REGISTER_SERIALIZER": "users.serializers.RegisterUserSerializer",
     "SESSION_LOGIN": False,
     "OLD_PASSWORD_FIELD_ENABLED": True,
     "LOGOUT_ON_PASSWORD_CHANGE": True,
