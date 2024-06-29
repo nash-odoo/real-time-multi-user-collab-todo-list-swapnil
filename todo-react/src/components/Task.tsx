@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog"
+import ImageBundle from "./ImageBundle"
 
 interface TaskProps {
   task: ITask
@@ -82,13 +83,10 @@ const Task = (props: TaskProps) => {
               </span>
             </div>
             <div className="flex items-center gap-x-1">
-              {allAssignees.map((assignee) => (
-                <img
-                  src={assignee.photo}
-                  alt={assignee.name}
-                  className="w-10 h-10 border-[2px] border-white rounded-full"
-                />
-              ))}
+              <ImageBundle
+                urls={allAssignees.map((v) => v.photo)}
+                maxImages={5}
+              />
             </div>
           </div>
         </CollapsibleTrigger>
