@@ -4,6 +4,8 @@ import Home from "./pages/Home"
 import Signup from "./pages/Signup"
 import AuthLayout from "./layouts/AuthLayout"
 import Login from "./pages/Login"
+import DashboardLayout from "./layouts/DashboardLayout"
+import Dashboard from "./pages/Dashboard"
 
 function App() {
   return (
@@ -24,6 +26,14 @@ function App() {
             <AuthLayout>
               <Login />
             </AuthLayout>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <DashboardLayout>
+              <Dashboard />
+            </DashboardLayout>
           }
         />
       </Routes>
