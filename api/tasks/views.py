@@ -7,6 +7,7 @@ from tasks.serializers import (
     TaskCreateSerializer,
     TaskDetailSerializer,
     TaskListSerializer,
+    TaskUpdateSerializer,
 )
 
 # Create your views here.
@@ -20,11 +21,12 @@ class TaskViewSet(SerializerActionClassMixin, ModelViewSet):
         "list": TaskListSerializer,
         "retrieve": TaskDetailSerializer,
         "create": TaskCreateSerializer,
+        "partial_update": TaskUpdateSerializer,
     }
 
     def get_queryset(self):
         queryset = self.queryset.filter(
             Q(created_by=self.request.user)
             | Q(items__assignees__user=self.request.user)
-        )
+        ).distinct()
         return queryset

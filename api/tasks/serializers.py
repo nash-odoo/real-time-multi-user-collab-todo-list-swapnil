@@ -59,7 +59,7 @@ class TaskListSerializer(DynamicFieldsModelSerializer):
 
 class TaskDetailSerializer(DynamicFieldsModelSerializer):
 
-    items = TaskItemSerializer(many=True)
+    items = TaskItemSerializer(exclude=("task",), many=True)
     created_by = UserSerializer(fields=("id", "username", "profile_picture"))
     last_modified_by = UserSerializer(
         fields=("id", "username", "profile_picture")
@@ -81,7 +81,7 @@ class TaskDetailSerializer(DynamicFieldsModelSerializer):
         read_only_fields = fields
 
 
-class TaskItemAssigneeCreateSerializer(DynamicFieldsModelSerializer):
+class TaskItemAssigneeCreateUpdateSerializer(DynamicFieldsModelSerializer):
     assigned_permissions = serializers.ListField(
         required=False, write_only=True, allow_empty=False
     )
@@ -120,9 +120,6 @@ class TaskItemAssigneeCreateSerializer(DynamicFieldsModelSerializer):
             "perm_delete",
         )
 
-    def create(self, validated_data):
-        instance = super().create(validated_data)
-
 
 class TaskItemCreateSerializer(DynamicFieldsModelSerializer):
 
@@ -132,7 +129,7 @@ class TaskItemCreateSerializer(DynamicFieldsModelSerializer):
     )
 
     def validate_assignees(self, assignee_list: list):
-        self._assignee_sz = TaskItemAssigneeCreateSerializer(
+        self._assignee_sz = TaskItemAssigneeCreateUpdateSerializer(
             data=assignee_list, many=True, exclude=("task_item",)
         )
         self._assignee_sz.is_valid(raise_exception=True)
@@ -188,12 +185,83 @@ def add_task_item_to_task(task: Task, task_items: list):
     [item.update({"task": task.id}) for item in task_items]
     sz = TaskItemCreateSerializer(data=task_items, many=True)
     sz.is_valid()
-    task_item = sz.save()
+    sz.save()
 
 
 def add_assginee_to_task_item(task_item: TaskItem, assignees: list):
     [assignee.update({"task_item": task_item.id}) for assignee in assignees]
 
-    sz = TaskItemAssigneeCreateSerializer(data=assignees, many=True)
+    sz = TaskItemAssigneeCreateUpdateSerializer(data=assignees, many=True)
     sz.is_valid()
-    assignee = sz.save()
+    sz.save()
+
+
+class TaskItemUpdateSerializer(DynamicFieldsModelSerializer):
+    assignees = serializers.ListField(required=False, write_only=True)
+    priority = serializers.ChoiceField(
+        choices=PRIORITY_CHOICES, default=PRIORITY_CHOICES.medium
+    )
+    text = serializers.CharField(required=False)
+
+    def validate_assignees(self, assignee_list: list):
+        self._assignee_sz = TaskItemAssigneeCreateUpdateSerializer(
+            data=assignee_list,
+            many=True,
+        )
+        self._assignee_sz.is_valid(raise_exception=True)
+        return assignee_list
+
+    class Meta:
+        model = TaskItem
+        fields = ("id", "priority", "text", "is_completed", "assignees")
+        # read_only_fields = ("task",)
+
+    def update(self, instance, validated_data):
+        assignees = validated_data.pop("assignees", [])
+        instance = super().update(instance, validated_data)
+
+        if assignees:
+            self._assignee_sz.save()
+
+        return instance
+
+
+class TaskUpdateSerializer(DynamicFieldsModelSerializer):
+    task_item = serializers.DictField(required=False, write_only=True)
+    last_modified_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    def validate_task_item(self, item: dict):
+        try:
+            task_item_instance = TaskItem.objects.get(id=item["id"])
+        except TaskItem.DoesNotExist as err:
+            raise serializers.ValidationError("Invalid `task_item` id")
+
+        self._task_item_sz = TaskItemUpdateSerializer(
+            instance=task_item_instance, data=item
+        )
+        self._task_item_sz.is_valid(raise_exception=True)
+        return item
+
+    class Meta:
+        model = Task
+        fields = (
+            "id",
+            "name",
+            "description",
+            "due_date",
+            "task_item",
+            "last_modified_by",
+            "created",
+            "modified",
+        )
+
+        read_only_fields = ("id", "created_by", "created", "modified")
+
+    def update(self, instance, validated_data):
+        task_item = validated_data.pop("task_item", [])
+        instance = super().update(instance, validated_data)
+        if task_item:
+            self._task_item_sz.save()
+        return instance

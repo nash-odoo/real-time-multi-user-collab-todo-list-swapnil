@@ -59,6 +59,6 @@ dj_rest_auth_urls = [
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("auth/", include(dj_rest_auth_urls)),
+    path("api/auth/", include(dj_rest_auth_urls)),
     path("api/", include(router.urls)),
 ]
