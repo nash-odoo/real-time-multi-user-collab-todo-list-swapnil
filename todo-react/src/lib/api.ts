@@ -44,3 +44,8 @@ export const login = async (payload: { email: string; password: string }) => {
   localStorage.setItem("token", response.data.key)
   return response.data
 }
+
+export const getMe = async () => {
+  const response = await api.get("/user/me/")
+  return response.data
+}

@@ -3,6 +3,7 @@ import { Input } from "./ui/input"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Task as ITask } from "@/types"
 import {
   Form,
   FormControl,
@@ -17,25 +18,30 @@ import { FaCirclePlus, FaPlus, FaTrash } from "react-icons/fa6"
 import { Checkbox } from "./ui/checkbox"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
-const CreateTask = () => {
-  const formSchema = z.object({
-    title: z.string().min(2),
-    items: z.array(
-      z.object({
-        isCompleted: z.boolean(),
-        text: z.string().min(2),
-        assignees: z
-          .array(
-            z.object({
-              id: z.string(),
-              name: z.string(),
-              photo: z.string(),
-            })
-          )
-          .min(0),
-      })
-    ),
-  })
+const formSchema = z.object({
+  title: z.string().min(2),
+  items: z.array(
+    z.object({
+      isCompleted: z.boolean(),
+      text: z.string().min(2),
+      assignees: z
+        .array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            photo: z.string(),
+          })
+        )
+        .min(0),
+    })
+  ),
+})
+interface CreateTaskProps {
+  onCreate: (data: ITask) => void
+}
+
+const CreateTask = (props: CreateTaskProps) => {
+  const { onCreate } = props
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,6 +53,22 @@ const CreateTask = () => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log(data)
+    onCreate({
+      id: Math.random().toString(36).substring(7),
+      items: data.items.map((item) => ({
+        ...item,
+        isCompleted: item.isCompleted,
+        priority: "medium",
+        id: Math.random().toString(36).substring(7),
+        text: item.text,
+        assignees: item.assignees.map((assignee) => ({
+          id: assignee.id,
+          name: assignee.name,
+          photo: 'https://randomuser.me/api/portraits/thumb/women/88.jpg'
+        }),
+      })),
+      title: data.title,
+    })
   }
 
   console.log(form.getValues())
