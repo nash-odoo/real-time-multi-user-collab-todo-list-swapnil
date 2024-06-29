@@ -81,7 +81,15 @@ const Task = (props: TaskProps) => {
                 /{task.items.length} Completed)
               </span>
             </div>
-            <div>kek</div>
+            <div className="flex items-center gap-x-1">
+              {allAssignees.map((assignee) => (
+                <img
+                  src={assignee.photo}
+                  alt={assignee.name}
+                  className="w-10 h-10 border-[2px] border-white rounded-full"
+                />
+              ))}
+            </div>
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent
