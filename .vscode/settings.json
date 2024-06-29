@@ -14,7 +14,7 @@
         },
         {
             "name": "rest_framework",
-            "depth": 4,
+            "depth": 5,
             "includeAllSymbols": true
         },
         {
