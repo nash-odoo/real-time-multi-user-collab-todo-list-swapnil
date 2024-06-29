@@ -1,10 +1,16 @@
-from django.core import serializers
-from rest_framework.authtoken.models import Token
+from core.serializers import DynamicFieldsModelSerializer
+from users.models import User
 
 
-class TokenSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(source="user.email")
+class UserSerializer(DynamicFieldsModelSerializer):
 
     class Meta:
-        model = Token
-        fields = ("key", "email", "user")
+        model = User
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "username",
+            "profile_picture",
+        )

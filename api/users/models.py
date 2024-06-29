@@ -3,6 +3,7 @@ from django.db import models
 
 from common.helpers import get_profile_picture_path
 from core.models import BaseModel
+from users.managers import UserManager
 
 # Create your models here.
 
@@ -16,7 +17,9 @@ class User(BaseModel, AbstractUser):
 
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["username"]
+
+    objects = UserManager()
 
     class Meta:
         verbose_name = "User"
