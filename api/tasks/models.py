@@ -40,15 +40,11 @@ class Task(BaseModel):
         verbose_name_plural = "Tasks"
 
     def __str__(self) -> str:
-        return f"{self.name} - {self.due_date.date()}"
+        return f"{self.name}"
 
     @property
     def is_complete(self) -> bool:
         return not self.items.filter(is_completed=False).exists()
-
-    # @property
-    # def collaborators(self):
-    #     return self.items.filter(assignees__user=self.created_by)
 
 
 class TaskItem(BaseModel):

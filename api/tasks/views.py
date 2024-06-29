@@ -4,7 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from common.serializer_action_classes_mixin import SerializerActionClassMixin
 from tasks.models import Task
 from tasks.serializers import (
-    # TaskCreateUpdateSerializer,
+    TaskCreateSerializer,
     TaskDetailSerializer,
     TaskListSerializer,
 )
@@ -19,7 +19,7 @@ class TaskViewSet(SerializerActionClassMixin, ModelViewSet):
     serializer_action_classes = {
         "list": TaskListSerializer,
         "retrieve": TaskDetailSerializer,
-        # "create": TaskCreateUpdateSerializer,
+        "create": TaskCreateSerializer,
     }
 
     def get_queryset(self):

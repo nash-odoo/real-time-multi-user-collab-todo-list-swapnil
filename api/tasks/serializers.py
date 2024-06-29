@@ -81,58 +81,119 @@ class TaskDetailSerializer(DynamicFieldsModelSerializer):
         read_only_fields = fields
 
 
-# class TaskItemAssigneeCreateSerializer(DynamicFieldsModelSerializer):
-#     assigned_permissions = serializers.ListField(
-#         required=False, write_only=True
-#     )
-#     user = serializers.PrimaryKeyRelatedField(
-#         queryset=User.objects.all(), write_only=True, required=True
-#     )
+class TaskItemAssigneeCreateSerializer(DynamicFieldsModelSerializer):
+    assigned_permissions = serializers.ListField(
+        required=False, write_only=True, allow_empty=False
+    )
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True, required=True
+    )
 
-#     def validate_assigned_permissions(self, permissions: list):
-#         if all([perm not in PERMISSION_LIST for perm in permissions]):
-#             raise serializers.ValidationError("Invalid permissions.")
+    def validate_assigned_permissions(self, permissions: list):
+        if all([perm not in PERMISSION_LIST for perm in permissions]):
+            raise serializers.ValidationError("Invalid permissions.")
 
-#         return permissions
+        return permissions
 
-#     class Meta:
-#         model = TaskItemAssignee
-#         fields = ("user", "assigned_permissions")
+    def validate(self, attrs: dict):
+        if perms := attrs.pop("assigned_permissions", []):
+            perm_mapping = {
+                "perm_create": False,
+                "perm_read": False,
+                "perm_update": False,
+                "perm_delete": False,
+            }
 
+            [perm_mapping.update({f"perm_{perm}": True}) for perm in perms]
 
-# class TaskItemCreateUpdateSerializer(DynamicFieldsModelSerializer):
+        return attrs
 
-#     assignees = serializers.ListField(required=False)
-#     priority = serializers.ChoiceField(
-#         choices=PRIORITY_CHOICES, default=PRIORITY_CHOICES.medium
-#     )
+    class Meta:
+        model = TaskItemAssignee
+        fields = (
+            "task_item",
+            "user",
+            "assigned_permissions",
+            "perm_create",
+            "perm_read",
+            "perm_update",
+            "perm_delete",
+        )
 
-#     class Meta:
-#         model = TaskItem
-#         fields = ("priority", "text", "is_completed", "assignees")
-
-#     def create(self, validated_data: dict):
-#         if assignees_data := validated_data.pop("assignees", None):
-#             assignee_sz = TaskItemAssigneeCreateSerializer(assignees_data, many=True)
-#             assignee_sz.is_valid(raise_exception=True)
-
-#         instance = super().create(validated_data)
-
-#         add_task_item_to_task(task_item=instance, assignee=assignees_data)
-
-
-# class TaskCreateUpdateSerializer(DynamicFieldsModelSerializer):
-
-#     task_items = TaskItemCreateUpdateSerializer(required=False, many=True)
-
-#     class Meta:
-#         model = Task
-#         fields = ("name", "description", "task_items")
-
-#     def create(self, validated_data: dict):
-#         instance: Task = super().create(validated_data)
-
-#         return instance
+    def create(self, validated_data):
+        instance = super().create(validated_data)
 
 
-# def add_task_item_to_task(task_item: TaskItem, assignee: list):
+class TaskItemCreateSerializer(DynamicFieldsModelSerializer):
+
+    assignees = serializers.ListField(required=False)
+    priority = serializers.ChoiceField(
+        choices=PRIORITY_CHOICES, default=PRIORITY_CHOICES.medium
+    )
+
+    def validate_assignees(self, assignee_list: list):
+        self._assignee_sz = TaskItemAssigneeCreateSerializer(
+            data=assignee_list, many=True, exclude=("task_item",)
+        )
+        self._assignee_sz.is_valid(raise_exception=True)
+        return assignee_list
+
+    class Meta:
+        model = TaskItem
+        fields = ("task", "priority", "text", "is_completed", "assignees")
+
+    def create(self, validated_data: dict):
+        assignees = validated_data.pop("assignees", [])
+
+        instance: TaskItem = super().create(validated_data)
+        if assignees:
+            add_assginee_to_task_item(instance, assignees)
+
+        return instance
+
+
+class TaskCreateSerializer(DynamicFieldsModelSerializer):
+
+    task_items = serializers.ListField(
+        required=False, allow_empty=False, write_only=True
+    )
+    created_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    def validate_task_items(self, items: list):
+        self._task_item_sz = TaskItemCreateSerializer(
+            data=items, exclude=("task",), many=True
+        )
+        self._task_item_sz.is_valid(raise_exception=True)
+        return items
+
+    class Meta:
+        model = Task
+        fields = ("name", "description", "task_items", "created_by")
+
+    def create(self, validated_data: dict):
+        task_items = validated_data.pop("task_items", [])
+
+        instance: Task = super().create(validated_data)
+
+        if task_items:
+            add_task_item_to_task(instance, task_items)
+
+        return instance
+
+
+def add_task_item_to_task(task: Task, task_items: list):
+
+    [item.update({"task": task.id}) for item in task_items]
+    sz = TaskItemCreateSerializer(data=task_items, many=True)
+    sz.is_valid()
+    task_item = sz.save()
+
+
+def add_assginee_to_task_item(task_item: TaskItem, assignees: list):
+    [assignee.update({"task_item": task_item.id}) for assignee in assignees]
+
+    sz = TaskItemAssigneeCreateSerializer(data=assignees, many=True)
+    sz.is_valid()
+    assignee = sz.save()
