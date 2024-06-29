@@ -111,7 +111,7 @@ const Dashboard = () => {
           </div>
           <CreateTask />
 
-          <div className="w-full flex flex-col gap-y-2 px-4 text-black">
+          <div className="w-full flex flex-col gap-y-2 text-black">
             {tasks.map((task) => (
               <Task
                 task={task}
