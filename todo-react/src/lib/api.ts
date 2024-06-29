@@ -7,6 +7,14 @@ const api = axios.create({
   baseURL: API_URL,
 })
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token")
+  if (token) {
+    config.headers["Authorization"] = `Token ${token}`
+  }
+  return config
+})
+
 interface CreateTaskPayload {
   name: string
   description: string
@@ -25,7 +33,14 @@ interface SignupPayload {
   password1: string
   password2: string
 }
-export const signup = async (data: SignupPayload) => {
-  const response = await api.post("/auth/signup", data)
+export const signup = async (data: SignupPayload): Promise<{ key: string }> => {
+  const response = await api.post("/auth/signup/", data)
+  localStorage.setItem("token", response.data.key)
+  return response.data
+}
+
+export const login = async (payload: { email: string; password: string }) => {
+  const response = await api.post("/auth/login/", payload)
+  localStorage.setItem("token", response.data.key)
   return response.data
 }

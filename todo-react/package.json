@@ -28,6 +28,7 @@
     "react-loader-spinner": "^6.1.6",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.24.0",
+    "react-toastify": "^10.0.5",
     "react-tooltip": "^5.27.0",
     "rooks": "^7.14.1",
     "tailwind-merge": "^2.3.0",
