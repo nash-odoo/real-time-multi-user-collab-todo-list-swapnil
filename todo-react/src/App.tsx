@@ -6,6 +6,7 @@ import AuthLayout from "./layouts/AuthLayout"
 import Login from "./pages/Login"
 import DashboardLayout from "./layouts/DashboardLayout"
 import Dashboard from "./pages/Dashboard"
+import Error404 from "./pages/404"
 
 function App() {
   return (
@@ -36,6 +37,8 @@ function App() {
             </DashboardLayout>
           }
         />
+        <Route path="/404" element={<Error404 />} />
+
       </Routes>
     </>
   )
