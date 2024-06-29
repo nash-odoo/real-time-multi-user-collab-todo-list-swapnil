@@ -28,6 +28,7 @@ from dj_rest_auth.views import (
     PasswordResetView,
 )
 
+from api.users.views import UserDetailView
 from tasks.views import TaskViewSet
 
 router = SimpleRouter()
@@ -54,7 +55,7 @@ dj_rest_auth_urls = [
         PasswordChangeView.as_view(),
         name="rest_password_change",
     ),
-    # path("user/", UserDetailView.as_view(), name="rest_user"),
+    path("user/me", UserDetailView.as_view(), name="rest_user"),
 ]
 
 urlpatterns = [
